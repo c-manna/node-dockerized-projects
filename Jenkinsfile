@@ -9,18 +9,18 @@ pipeline {
 
         stage("Install Node.js and npm") {
             steps {
-                // Install the latest version of Node.js and npm without sudo
+                // Install the latest version of Node.js and npm as root
                 sh '''
-                # Install curl if not already installed
-                apt-get update
-                apt-get install -y curl
+                # Update and install curl
+                sudo apt-get update
+                sudo apt-get install -y curl
                 
                 # Install Node.js (latest stable version) from NodeSource
-                curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-                apt-get install -y nodejs
+                curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
+                sudo apt-get install -y nodejs
                 
                 # Ensure the latest npm version is installed
-                npm install -g npm@latest
+                sudo npm install -g npm@latest
                 '''
             }
         }
