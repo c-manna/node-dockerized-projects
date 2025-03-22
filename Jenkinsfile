@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:16'  // Use the Node.js Docker image which includes npm
-            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Mount Docker socket for DinD
+            args '-u node'
         }
     }
     stages{
@@ -15,7 +15,7 @@ pipeline {
         stage("Test"){
             steps{
                 // Run npm install and test inside the Docker container
-                sh 'npm install --no-cache'
+                sh 'npm install'
                 sh 'npm test'
             }
         }
