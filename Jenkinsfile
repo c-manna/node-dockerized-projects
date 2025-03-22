@@ -14,7 +14,10 @@ pipeline {
 
         stage("Test") {
             steps {
-                // Fix ownership of the .npm directory
+                // Install sudo inside the Docker container
+                sh 'apt-get update && apt-get install -y sudo'
+
+                // Now use sudo to fix the ownership
                 sh 'sudo chown -R $(whoami):$(whoami) /.npm'
 
                 // Run npm install and test inside the Docker container
