@@ -1,33 +1,35 @@
 pipeline {
     agent {
         docker {
-            image 'docker:19.03.12-dind'  // Use Docker-in-Docker image for running Docker commands
-            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Mount Docker socket
+            image 'node:16'  // Use the Node.js Docker image which includes npm
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Mount Docker socket for DinD
         }
     }
-    stages {
-        stage("checkout") {
-            steps {
+    stages{
+        stage("checkout"){
+            steps{
                 checkout scm
             }
         }
 
-        stage("Test") {
-            steps {
+        stage("Test"){
+            steps{
+                // Run npm install and test inside the Docker container
                 sh 'npm install'
                 sh 'npm test'
             }
         }
 
-        stage("Build") {
-            steps {
+        stage("Build"){
+            steps{
+                // Run the build inside the Docker container
                 sh 'npm run build'
             }
         }
 
-        stage("Build Image") {
-            steps {
-                // Run Docker build inside Docker container
+        stage("Build Image"){
+            steps{
+                // Run Docker build inside the container (Docker-in-Docker)
                 sh 'docker build -t my-node-app:1.0 .'
             }
         }
