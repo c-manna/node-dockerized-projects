@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:16'  // Use Node.js Docker image for Test and Build stages
-            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Mount Docker socket to container
+            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'  // Mount Docker socket and ensure root user for installation
         }
     }
     stages {
@@ -14,11 +14,11 @@ pipeline {
 
         stage("Test") {
             steps {
-                // Install sudo inside the Docker container
+                // Update package list and install sudo inside the Docker container (running as root)
                 sh 'apt-get update && apt-get install -y sudo'
 
-                // Now use sudo to fix the ownership
-                sh 'sudo chown -R $(whoami):$(whoami) /.npm'
+                // Now use sudo to fix the ownership (as root)
+                sh 'chown -R $(whoami):$(whoami) /.npm'
                 
                 // Run npm install and test inside the Docker container
                 sh 'npm install'
