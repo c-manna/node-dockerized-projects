@@ -17,8 +17,9 @@ pipeline {
                 // Update package list and install sudo inside the Docker container (running as root)
                 sh 'apt-get update && apt-get install -y sudo'
 
-                // Now use sudo to fix the ownership (as root)
-                sh 'chown -R $(whoami):$(whoami) /.npm'
+                // Now use sudo to fix the ownership of the correct .npm directory
+                // Use the home directory where npm stores its cache (usually /root/.npm)
+                sh 'chown -R $(whoami):$(whoami) /root/.npm'
                 
                 // Run npm install and test inside the Docker container
                 sh 'npm install'
