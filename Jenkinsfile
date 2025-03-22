@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:16'  // Use a Node.js Docker image
+            args '-u root'   // Ensure that we run with root privileges (if needed)
+        }
+    }
     stages{
         stage("checkout"){
             steps{
@@ -7,20 +12,20 @@ pipeline {
             }
         }
 
-        // stage("Test"){
-        //     steps{
-        //         // Ensure npm is installed if not already
-        //         sh 'curl -sL https://rpm.nodesource.com/setup_16.x | bash -'
-        //         sh 'yum install -y nodejs'
-        //         sh 'npm test'
-        //     }
-        // }
+        stage("Test"){
+            steps{
+                // Install dependencies and run tests inside the Docker container
+                sh 'npm install'
+                sh 'npm test'
+            }
+        }
 
-        // stage("Build"){
-        //     steps{
-        //         sh 'npm run build'
-        //     }
-        // }
+        stage("Build"){
+            steps{
+                // Run the build inside the Docker container
+                sh 'npm run build'
+            }
+        }
 
         stage("Build Image"){
             steps{
