@@ -15,7 +15,7 @@ pipeline {
         stage("Test"){
             steps{
                 // Run npm install and test inside the Docker container
-                sh 'npm install'
+                sh 'npm install --no-cache'
                 sh 'npm test'
             }
         }
