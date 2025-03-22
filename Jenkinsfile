@@ -1,53 +1,52 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:16'  // Use Node.js Docker image for Test and Build stages
-            args '-v /var/run/docker.sock:/var/run/docker.sock -u root'  // Mount Docker socket and ensure root user for installation
-        }
-    }
+    agent none  // Define agent at the stage level
+
     stages {
-        stage("checkout") {
+        stage("Checkout") {
+            agent any  // Use any available agent to check out the source code
             steps {
                 checkout scm
             }
         }
 
         stage("Test") {
+            agent {
+                docker {
+                    image 'node:16'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+                }
+            }
             steps {
-                // Update package list and install sudo inside the Docker container (running as root)
                 sh 'apt-get update && apt-get install -y sudo'
-
-                // Now use sudo to fix the ownership of the correct .npm directory
-                // Use the home directory where npm stores its cache (usually /root/.npm)
                 sh 'chown -R $(whoami):$(whoami) /root/.npm'
-                
-                // Run npm install and test inside the Docker container
                 sh 'npm install'
                 sh 'npm test'
             }
         }
 
         stage("Build") {
+            agent {
+                docker {
+                    image 'node:16'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -u root'
+                }
+            }
             steps {
-                // Run npm build inside the Docker container
                 sh 'npm run build'
             }
         }
 
         stage("Build Image") {
             agent {
-                // Run Docker build on the Jenkins host (outside the container)
                 label 'docker-host'
             }
             steps {
-                // Run Docker build on the Jenkins host (outside the container)
                 sh 'docker build -t my-node-app:1.0 .'
             }
         }
 
         stage('Docker Push') {
             agent {
-                // Run Docker push on the Jenkins host (outside the container)
                 label 'docker-host'
             }
             steps {
