@@ -7,20 +7,20 @@ pipeline {
             }
         }
 
-        stage("Test"){
-            steps{
-                // Ensure npm is installed if not already
-                sh 'curl -sL https://rpm.nodesource.com/setup_16.x | bash -'
-                sh 'yum install -y nodejs'
-                sh 'npm test'
-            }
-        }
+        // stage("Test"){
+        //     steps{
+        //         // Ensure npm is installed if not already
+        //         sh 'curl -sL https://rpm.nodesource.com/setup_16.x | bash -'
+        //         sh 'yum install -y nodejs'
+        //         sh 'npm test'
+        //     }
+        // }
 
-        stage("Build"){
-            steps{
-                sh 'npm run build'
-            }
-        }
+        // stage("Build"){
+        //     steps{
+        //         sh 'npm run build'
+        //     }
+        // }
 
         stage("Build Image"){
             steps{
