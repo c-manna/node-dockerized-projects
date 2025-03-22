@@ -1,35 +1,36 @@
 pipeline {
     agent {
         docker {
-            image 'node:16'  // Use the Node.js Docker image which includes npm
-            args '-u node'
+            image 'node:16'  // Use Node.js Docker image
+            args '-u root'   // Run as root for installation
         }
     }
-    stages{
-        stage("checkout"){
-            steps{
+    stages {
+        stage("checkout") {
+            steps {
                 checkout scm
             }
         }
 
-        stage("Test"){
-            steps{
+        stage("Test") {
+            steps {
+                // Fix ownership of the .npm directory
+                sh 'sudo chown -R $(whoami):$(whoami) /.npm'
+
                 // Run npm install and test inside the Docker container
                 sh 'npm install'
                 sh 'npm test'
             }
         }
 
-        stage("Build"){
-            steps{
-                // Run the build inside the Docker container
+        stage("Build") {
+            steps {
                 sh 'npm run build'
             }
         }
 
-        stage("Build Image"){
-            steps{
-                // Run Docker build inside the container (Docker-in-Docker)
+        stage("Build Image") {
+            steps {
                 sh 'docker build -t my-node-app:1.0 .'
             }
         }
