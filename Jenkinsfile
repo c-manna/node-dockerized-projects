@@ -7,26 +7,9 @@ pipeline {
             }
         }
 
-        stage("Install Node.js and npm") {
-            steps {
-                // Install the latest version of Node.js and npm as root
-                sh '''
-                # Update and install curl
-                sudo apt-get update
-                sudo apt-get install -y curl
-                
-                # Install Node.js (latest stable version) from NodeSource
-                curl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -
-                sudo apt-get install -y nodejs
-                
-                # Ensure the latest npm version is installed
-                sudo npm install -g npm@latest
-                '''
-            }
-        }
-
-        stage("Test") {
-            steps {
+        stage("Test"){
+            steps{
+                sh 'sudo apt install npm'
                 sh 'npm test'
             }
         }
