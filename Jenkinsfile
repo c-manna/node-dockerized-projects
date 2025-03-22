@@ -2,33 +2,28 @@ pipeline {
     agent {
         docker {
             image 'node:16'  // Use a Node.js Docker image
-            args '-u root'   // Ensure that we run with root privileges (if needed)
+            args '-u root'   // Ensure we run with root privileges (if needed)
         }
     }
-    stages{
-        stage("checkout"){
-            steps{
+    stages {
+        stage("checkout") {
+            steps {
                 checkout scm
             }
         }
-
-        stage("Test"){
-            steps{
-                // Install dependencies and run tests inside the Docker container
+        stage("Test") {
+            steps {
                 sh 'npm install'
                 sh 'npm test'
             }
         }
-
-        stage("Build"){
-            steps{
-                // Run the build inside the Docker container
+        stage("Build") {
+            steps {
                 sh 'npm run build'
             }
         }
-
-        stage("Build Image"){
-            steps{
+        stage("Build Image") {
+            steps {
                 sh 'docker build -t my-node-app:1.0 .'
             }
         }
