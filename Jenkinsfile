@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'node:16'  // Use Node.js Docker image
-            args '-u root'   // Run as root for installation
+            image 'node:16'  // Use Node.js Docker image for Test and Build stages
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Mount Docker socket to container
         }
     }
     stages {
@@ -14,9 +14,6 @@ pipeline {
 
         stage("Test") {
             steps {
-                // Fix ownership of the correct .npm directory (user's home directory)
-                sh 'chown -R $(whoami):$(whoami) ~/.npm'
-
                 // Run npm install and test inside the Docker container
                 sh 'npm install'
                 sh 'npm test'
@@ -25,17 +22,27 @@ pipeline {
 
         stage("Build") {
             steps {
+                // Run npm build inside the Docker container
                 sh 'npm run build'
             }
         }
 
         stage("Build Image") {
+            agent {
+                // Run Docker build on the Jenkins host (outside the container)
+                label 'docker-host'
+            }
             steps {
+                // Run Docker build on the Jenkins host (outside the container)
                 sh 'docker build -t my-node-app:1.0 .'
             }
         }
 
         stage('Docker Push') {
+            agent {
+                // Run Docker push on the Jenkins host (outside the container)
+                label 'docker-host'
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker_cred', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
                     sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
